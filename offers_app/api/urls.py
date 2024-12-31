@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import offers_list
+from .views import OfferListAPIView
 
 urlpatterns = [
-    path('', offers_list, name='offers-list'),
+    path('', OfferListAPIView.as_view(), name='offers-list'),
 ]
