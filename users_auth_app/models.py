@@ -5,7 +5,6 @@ from django.utils.text import slugify
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     file = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)

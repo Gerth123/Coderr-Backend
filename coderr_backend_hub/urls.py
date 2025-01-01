@@ -16,11 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from offers_app.api.views import OfferDetailView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path('api/', include('users_auth_app.api.urls')),
     path('api/offers/', include('offers_app.api.urls')),
+    path('api/offerdetails/<int:pk>/', OfferDetailView.as_view(), name='offer-detail', ),
     path('api/reviews/', include('reviews_app.api.urls')),
     path('api/orders/', include('orders_app.api.urls')),
     path('api/base-info/', include('base_info_app.api.urls')),

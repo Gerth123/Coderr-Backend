@@ -13,20 +13,8 @@ class Offer(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    @property
-    def min_price(self):
-        """
-        Returns the minimum price of the associated OfferDetail objects.
-        """
-        return self.details.aggregate(Min('price'))['price__min']
-
-    @property
-    def min_delivery_time(self):
-        """
-        Returns the minimum delivery time of the associated OfferDetail objects.
-        """
-        return self.details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min']
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    min_delivery_time = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.title
