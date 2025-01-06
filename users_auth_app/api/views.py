@@ -18,7 +18,13 @@ class UserProfileList(generics.ListCreateAPIView):
 class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserProfileSerializer
+        if self.request.method == 'PATCH':
+            return UserProfilePatchSerializer  
+        return UserProfileSerializer  
 
     def get_object(self):
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'))
@@ -30,15 +36,13 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
         serializer.save(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
-        """
-        Optional: Falls du zusätzliche Logik nur für PATCH hinzufügen möchtest.
-        """
-        partial = kwargs.pop('partial', True)  # `partial=True` für PATCH-Requests
+        partial = kwargs.pop('partial', True) 
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class BusinessProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]

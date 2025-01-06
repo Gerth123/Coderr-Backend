@@ -3,11 +3,25 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from utils.validators import validate_no_html
+from django.conf import settings
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
+    file = serializers.SerializerMethodField()
+
+    def get_file(self, obj):
+        if obj.file:
+            return f"{settings.MEDIA_URL}{obj.file.name}"  
+        return None 
+
+    class Meta:
+        model = UserProfile
+        fields = '__all__'
+
+class UserProfilePatchSerializer(serializers.ModelSerializer):
+    file = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = UserProfile
