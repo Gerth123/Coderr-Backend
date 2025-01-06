@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import PermissionDenied
 
 class UserProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -22,8 +23,22 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'))
         if obj.user != self.request.user and not self.request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied("You do not have permission to access this profile.")
         return obj
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Optional: Falls du zusätzliche Logik nur für PATCH hinzufügen möchtest.
+        """
+        partial = kwargs.pop('partial', True)  # `partial=True` für PATCH-Requests
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
     
 class BusinessProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]

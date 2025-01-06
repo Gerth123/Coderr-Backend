@@ -15,6 +15,7 @@ class UserProfile(models.Model):
     type = models.CharField(max_length=10, choices=[('business', 'Business'), ('personal', 'Personal')])
     email = models.EmailField(blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
 
     class Meta:
         verbose_name = 'User Profile'

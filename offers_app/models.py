@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Min
 from users_auth_app.models import UserProfile
+from django import forms
 
 class Offer(models.Model):
     user = models.ForeignKey(

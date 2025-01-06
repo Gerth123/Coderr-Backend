@@ -5,7 +5,7 @@ from django.db.models import Min
 class OfferDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OfferDetail
-        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+        fields = '__all__'
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'title', 'image', 'description', 'created_at', 'updated_at', 'details', 'min_price', 'min_delivery_time']
 
     def create(self, validated_data):
-        details_data = validated_data.pop('details')  # Details aus den Validierungsdaten extrahieren
+        details_data = validated_data.pop('details')
 
         # Erstelle das Offer-Objekt und speichere es, damit eine ID generiert wird
         offer = Offer.objects.create(**validated_data)
