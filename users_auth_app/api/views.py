@@ -65,19 +65,19 @@ class BusinessProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CustomerProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-    queryset = UserProfile.objects.filter(type='personal')
+    queryset = UserProfile.objects.filter(type='customer')
     serializer_class = UserProfileSerializer
 
     def get_queryset(self):
-        return UserProfile.objects.filter(type='personal')
+        return UserProfile.objects.filter(type='customer')
 
 class CustomerProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-    queryset = UserProfile.objects.filter(type='personal')
+    queryset = UserProfile.objects.filter(type='customer')
     serializer_class = UserProfileSerializer
 
     def get_object(self):
-        obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'), type='personal')
+        obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'), type='customer')
         if obj.user != self.request.user and not self.request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return obj

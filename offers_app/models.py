@@ -2,12 +2,13 @@ from django.db import models
 from django.db.models import Min
 from users_auth_app.models import UserProfile
 from django import forms
+from django.core.exceptions import ValidationError
 
 class Offer(models.Model):
     user = models.ForeignKey(
         UserProfile,
         on_delete=models.CASCADE,
-        related_name="offers"
+        related_name="offers", 
     )
     title = models.CharField(max_length=255)
     image = models.ImageField(upload_to="offers/images/", null=True, blank=True)
@@ -31,10 +32,10 @@ class OfferDetail(models.Model):
     offer = models.ForeignKey(
         Offer,
         on_delete=models.CASCADE,
-        related_name="details"
+        related_name="details", 
     )
     title = models.CharField(max_length=255)
-    revisions = models.PositiveIntegerField()
+    revisions = models.IntegerField(default=0)
     delivery_time_in_days = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     features = models.JSONField()
@@ -42,3 +43,15 @@ class OfferDetail(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.offer_type}"
+
+    def clean(self):
+        if self.revisions < -1:
+            raise ValidationError("Revisions müssen -1 oder größer sein.")
+
+        if self.delivery_time_in_days <= 0:
+            raise ValidationError("delivery_time_in_days muss positiv sein.")
+
+        if not self.features or not isinstance(self.features, list) or len(self.features) < 1:
+            raise ValidationError("Es muss mindestens ein Feature vorhanden sein.")
+
+        super().clean()

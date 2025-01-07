@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='type',
-            field=models.CharField(choices=[('business', 'Business'), ('personal', 'Personal')], default='personal', max_length=50),
+            field=models.CharField(choices=[('business', 'Business'), ('customer', 'Customer')], default='customer', max_length=50),
         ),
         migrations.AddField(
             model_name='userprofile',

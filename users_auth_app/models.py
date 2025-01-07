@@ -5,15 +5,15 @@ from django.utils.text import slugify
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    first_name = models.CharField(max_length=100, blank=True, null=True)
-    last_name = models.CharField(max_length=100, blank=True, null=True)
+    first_name = models.CharField(max_length=100, blank=True,  default='', null=True)
+    last_name = models.CharField(max_length=100, blank=True,  default='', null=True)
     file = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
-    tel = models.CharField(max_length=20, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    working_hours = models.CharField(max_length=50, blank=True, null=True)
-    type = models.CharField(max_length=10, choices=[('business', 'Business'), ('personal', 'Personal')])
-    email = models.EmailField(blank=False, null=False)
+    location = models.CharField(max_length=255,  default='', blank=True, null=True)
+    tel = models.CharField(max_length=20,  default='', blank=True, null=True)
+    description = models.TextField(  default='',blank=True, null=True)
+    working_hours = models.CharField(max_length=50,  default='', blank=True, null=True)
+    type = models.CharField(max_length=10, choices=[('business', 'Business'), ('customer', 'Customer')], default='customer')
+    email = models.EmailField(blank=False,  default='', null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
 

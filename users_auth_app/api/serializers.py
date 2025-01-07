@@ -44,7 +44,7 @@ class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    type = serializers.ChoiceField(choices=[('business', 'Business'), ('personal', 'Personal')])
+    type = serializers.ChoiceField(choices=[('business', 'Business'), ('customer', 'Customer')], default='customer')
 
     class Meta:
         model = User
