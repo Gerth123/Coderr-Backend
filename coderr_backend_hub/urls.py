@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from offers_app.api.views import OfferDetailView
+from orders_app.api.views import OpenOrdersCountView, CompletedOrdersCountView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -29,6 +30,8 @@ urlpatterns = [
     path('api/offerdetails/<int:pk>/', OfferDetailView.as_view(), name='offer-detail', ),
     path('api/reviews/', include('reviews_app.api.urls')),
     path('api/orders/', include('orders_app.api.urls')),
+    path('api/order-count/<int:business_user_id>/', OpenOrdersCountView.as_view(), name='open-orders-count'),
+    path('api/completed-order-count/<int:business_user_id>/', CompletedOrdersCountView.as_view(), name='completed-orders-count'),
     path('api/base-info/', include('base_info_app.api.urls')),
 ]
 

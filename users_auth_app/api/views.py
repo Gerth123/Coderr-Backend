@@ -28,8 +28,15 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'))
+        
+        # Zugriff erlauben, wenn es sich um eine GET-Anfrage handelt
+        if self.request.method == 'GET':
+            return obj
+        
+        # Zugriff beschränken bei nicht-GET-Methoden
         if obj.user != self.request.user and not self.request.user.is_superuser:
-            raise PermissionDenied("You do not have permission to access this profile.")
+            raise PermissionDenied("You do not have permission to modify this profile.")
+        
         return obj
 
     def perform_update(self, serializer):
@@ -86,7 +93,6 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(request.data)
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             saved_account = serializer.save()
@@ -123,7 +129,6 @@ class CustomLoginView(ObtainAuthToken):
 
         serializer = UsernameAuthTokenSerializer(data=request.data)
         if serializer.is_valid():
-            print(serializer)
             user = serializer.validated_data['user']
             token, created = Token.objects.get_or_create(user=user)
             return Response({
