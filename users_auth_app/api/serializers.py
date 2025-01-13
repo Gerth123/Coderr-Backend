@@ -10,19 +10,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
     file = serializers.SerializerMethodField()
-    user = serializers.SerializerMethodField()
+    user = serializers.ReadOnlyField(source='user.id')
 
     def get_file(self, obj):
         if obj.file:
             return f"{settings.MEDIA_URL}{obj.file.name}"  
         return None 
-
-    def get_user(self, obj):
-        return {
-            # 'username': obj.user.username,
-            # 'email': obj.user.email,
-            'pk': obj.user.id
-        }
 
     class Meta:
         model = UserProfile
@@ -133,3 +126,25 @@ class UsernameAuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+    
+class SpecificUserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    file = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'file', 'user']
+
+    def get_user(self, obj):
+        return {
+            'username': obj.user.username,
+            'email': obj.user.email,
+            'pk': obj.user.id
+        }
+    
+    def get_file(self, obj):
+        if obj.file:
+            return f"{settings.MEDIA_URL}{obj.file.name}"  
+        return None
