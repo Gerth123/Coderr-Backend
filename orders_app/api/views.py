@@ -107,7 +107,7 @@ class CompletedOrdersCountView(generics.GenericAPIView):
                 business_user_id=business_user_id
             ).count()
 
-            return Response({'order_count': count}, status=status.HTTP_200_OK)
+            return Response({'completed_order_count': count}, status=status.HTTP_200_OK)
 
         except UserProfile.DoesNotExist:
             return Response({'error': 'Business user not found'}, status=status.HTTP_400_BAD_REQUEST)

@@ -73,7 +73,7 @@ class BusinessProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 class CustomerProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = UserProfile.objects.filter(type='customer')
-    serializer_class = UserProfileSerializer
+    serializer_class = SpecificUserProfileSerializer
 
     def get_queryset(self):
         return UserProfile.objects.filter(type='customer')
@@ -81,7 +81,7 @@ class CustomerProfileList(generics.ListCreateAPIView):
 class CustomerProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = UserProfile.objects.filter(type='customer')
-    serializer_class = UserProfileSerializer
+    serializer_class = SpecificUserProfileSerializer
 
     def get_object(self):
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'), type='customer')
