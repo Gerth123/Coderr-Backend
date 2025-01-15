@@ -7,6 +7,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer_user = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
     business_user = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
     offer_detail_id = serializers.PrimaryKeyRelatedField(queryset=OfferDetail.objects.all(), source='offer_detail')
+    revisions = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -15,6 +16,14 @@ class OrderSerializer(serializers.ModelSerializer):
             'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 
             'offer_type', 'status', 'created_at', 'updated_at'
         ]
+
+    def get_revisions(self, obj):
+        if obj.revisions == -1:
+            return "Unbegrenzte"
+        if obj.revisions == 0 or None:
+            return "Keine"
+        return obj.revisions
+    
 
     def create(self, validated_data):
         offer_detail = validated_data.get('offer_detail')
@@ -32,7 +41,7 @@ class OrderSerializer(serializers.ModelSerializer):
             price=offer_detail.price,
             features=offer_detail.features,
             offer_type=offer_detail.offer_type,
-            status='pending'  
+            status='in_progress'  
         )
 
         return order

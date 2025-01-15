@@ -53,7 +53,7 @@ class RegistrationSerializer(serializers.Serializer):
 
     def validate_username(self, value):
         """
-        Überprüft, ob der Benutzername bereits existiert.
+        Check if the username is already in use.
         """
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
@@ -62,7 +62,7 @@ class RegistrationSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         """
-        Überprüft, ob die E-Mail-Adresse bereits existiert.
+        Check if the email is already in use.
         """
         if User.objects.filter(email=value.lower()).exists():
             raise serializers.ValidationError(
@@ -128,23 +128,28 @@ class UsernameAuthTokenSerializer(serializers.Serializer):
         return attrs
     
 class SpecificUserProfileSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
-    file = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+    uploaded_at = serializers.SerializerMethodField()
+    type = serializers.ReadOnlyField()
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'file', 'user']
+        fields = ['user', 'file', 'uploaded_at', 'type']
 
     def get_user(self, obj):
-        return {
+        return {            
+            'pk': obj.user.id,
             'username': obj.user.username,
-            'email': obj.user.email,
-            'pk': obj.user.id
+            'first_name': obj.user.userprofile.first_name,
+            'last_name': obj.user.userprofile.last_name,
+            'file': self.get_file(obj),
         }
     
     def get_file(self, obj):
         if obj.file:
             return f"{settings.MEDIA_URL}{obj.file.name}"  
         return None
+    
+    def get_uploaded_at(self, obj):
+        return obj.user.userprofile.created_at
