@@ -45,9 +45,8 @@ class OfferListCreateView(generics.ListCreateAPIView):
     filterset_class = OfferFilter
     search_fields = ['title', 'description']
     ordering_fields = ['updated_at', 'min_price']
-    ordering = ['-updated_at']
+    ordering = ['updated_at']
     pagination_class = StandardResultsSetPagination
-    # throttle_classes = []
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user.userprofile)

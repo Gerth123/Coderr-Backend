@@ -2,7 +2,6 @@ from rest_framework import generics
 from orders_app.models import Order
 from .serializers import OrderSerializer
 from rest_framework import permissions
-from .permissions import IsCustomerUser
 from users_auth_app.models import UserProfile
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
