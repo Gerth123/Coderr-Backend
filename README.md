@@ -9,7 +9,7 @@ Dieses Repository beinhaltet das Backend der Jobplattform **Coderr**. Die Plattf
 - **Angebotsliste**: Anzeige aller verfügbaren Angebote auf der Plattform.
 - **Einzelne Angebotsseite**: Detaillierte Informationen zu einem spezifischen Angebot.
 - **Eigenes Profil**:
-  - **Kunde**: Benutzer können ihre persönlichen Daten und Einstellungen verwalten.
+  - **Kunde**: Benutzer können ihre persönlichen Daten verwalten.
   - **Business**: Unternehmen können ihre Firmendaten und angebotenen Dienstleistungen verwalten.
 - **Fremdansicht von Profilen**:
   - **Kunde**: Ansicht eines Kundenprofils durch andere Benutzer.
@@ -23,7 +23,7 @@ Dieses Repository beinhaltet das Backend der Jobplattform **Coderr**. Die Plattf
 - **Programmiersprache**: Python
 - **Framework**: Django
 - **REST-API**: Django REST Framework (DRF)
-- **Datenbank**: Konfigurierbar, typischerweise SQLite, PostgreSQL oder MySQL
+- **Datenbank**: SQLite
 
 ## API-Endpunkte
 
@@ -82,11 +82,7 @@ PATCH  /reviews/{id}/      - Aktualisieren einer spezifischen Bewertung
 DELETE /reviews/{id}/      - Löschen einer spezifischen Bewertung
 ```
 
-## Lizenz
-
-Dieses Projekt steht unter der [MIT-Lizenz](LICENSE). Weitere Details findest du in der Lizenzdatei.
-
 ## Kontakt
 
-Bei Fragen oder Anregungen wende dich gerne an [deine E-Mail-Adresse eintragen].
+Bei Fragen oder Anregungen wende dich gerne an kontakt@robin-gerth.de.
 
