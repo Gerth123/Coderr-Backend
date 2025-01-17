@@ -28,11 +28,12 @@ SECRET_KEY = 'django-insecure-lc&(=8+sdrb7mkx=!6=cx=vl-+=p97r%(2#2md($)mxz*8c@w_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'robin-gerth.developerakademie.net', 'https://robin-gerth.developerakademie.net']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'robin-gerth.developerakademie.net', 'https://robin-gerth.developerakademie.net', 'http://robin-gerth.developerakademie.net']
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",  
     "https://robin-gerth.developerakademie.net",  
+    "http://robin-gerth.developerakademie.net"
 ]
 
 
