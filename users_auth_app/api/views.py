@@ -9,6 +9,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
+from .functions import *
 
 class UserProfileList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -20,6 +21,9 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
 
     def get_serializer_class(self):
+        '''
+        Set the serializer class based on the request method.
+        '''
         if self.request.method == 'GET':
             return UserProfileSerializer
         if self.request.method == 'PATCH':
@@ -27,22 +31,29 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
         return UserProfileSerializer  
 
     def get_object(self):
+        '''
+        Get the object to be modified.
+        '''
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'))
         
-        # Zugriff erlauben, wenn es sich um eine GET-Anfrage handelt
         if self.request.method == 'GET':
             return obj
         
-        # Zugriff beschränken bei nicht-GET-Methoden
         if obj.user != self.request.user and not self.request.user.is_superuser:
             raise PermissionDenied("You do not have permission to modify this profile.")
         
         return obj
 
     def perform_update(self, serializer):
+        '''
+        Update the object.
+        '''
         serializer.save(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
+        '''
+        Patch the relevant dates of the object.
+        '''
         partial = kwargs.pop('partial', True) 
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -57,6 +68,9 @@ class BusinessProfileList(generics.ListCreateAPIView):
     serializer_class = SpecificUserProfileSerializer
 
     def get_queryset(self):
+        '''
+        Get the business profiles.
+        '''
         return UserProfile.objects.filter(type='business')
 
 class BusinessProfileDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -65,6 +79,9 @@ class BusinessProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SpecificUserProfileSerializer
 
     def get_object(self):
+        '''
+        Get the business profile detail.
+        '''
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'), type='business')
         if obj.user != self.request.user and not self.request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -76,6 +93,9 @@ class CustomerProfileList(generics.ListCreateAPIView):
     serializer_class = SpecificUserProfileSerializer
 
     def get_queryset(self):
+        '''
+        Get the customer profiles.
+        '''
         return UserProfile.objects.filter(type='customer')
 
 class CustomerProfileDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -84,6 +104,9 @@ class CustomerProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SpecificUserProfileSerializer
 
     def get_object(self):
+        '''
+        Get the customer profile detail.
+        '''
         obj = get_object_or_404(UserProfile, pk=self.kwargs.get('pk'), type='customer')
         if obj.user != self.request.user and not self.request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -93,6 +116,9 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        '''
+        Register a new user.
+        '''
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             saved_account = serializer.save()
@@ -113,29 +139,17 @@ class CustomLoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Main entry point for login logic.
+        """
         token = request.data.get('token')
         if token:
-            try:
-                token_obj = Token.objects.get(key=token)
-                user = token_obj.user
-                return Response({
-                    'token': token_obj.key,
-                    'username': user.username,
-                    'email': user.email,
-                    'user_id': user.id
-                }, status=status.HTTP_200_OK)
-            except Token.DoesNotExist:
-                return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            user = validate_token(token)
+            if user:
+                token_obj = Token.objects.get(user=user)
+                return generate_response(user, token_obj)
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = UsernameAuthTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.validated_data['user']
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
-                'token': token.key,
-                'username': user.username,
-                'email': user.email,
-                'user_id': user.id
-            }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return handle_username_login(request.data)
+
 

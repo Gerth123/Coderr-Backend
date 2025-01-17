@@ -19,4 +19,7 @@ class Review(models.Model):
         ordering = ['-created_at'] 
 
     def __str__(self):
+        '''
+        Returns a string representation of the model.
+        '''
         return f"Review by {self.reviewer.username} for {self.business_user.username}: {self.rating}/5"

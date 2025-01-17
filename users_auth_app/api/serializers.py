@@ -13,6 +13,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.id')
 
     def get_file(self, obj):
+        '''
+        Get the file URL.
+        '''
         if obj.file:
             return f"{settings.MEDIA_URL}{obj.file.name}"  
         return None 
@@ -91,6 +94,9 @@ class RegistrationSerializer(serializers.Serializer):
         return user
 
     def create_user_profile(self, user):
+        '''
+        Create and return a new user profile.
+        '''
         user_profile, created = UserProfile.objects.get_or_create(user=user)
 
         user_profile.type = self.validated_data.get('type', user_profile.type)
@@ -109,21 +115,16 @@ class UsernameAuthTokenSerializer(serializers.Serializer):
         '''
         username = attrs.get('username')
         password = attrs.get('password')
-
         if username and password:
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
-                raise serializers.ValidationError(
-                    "Benutzer mit diesem Benutzernamen existiert nicht.")
-
+                raise serializers.ValidationError("Benutzer mit diesem Benutzernamen existiert nicht.")
             user = authenticate(username=username, password=password)
             if not user:
                 raise serializers.ValidationError("Ungültige Anmeldedaten.")
         else:
-            raise serializers.ValidationError(
-                "Benutzername und Passwort sind erforderlich.")
-
+            raise serializers.ValidationError("Benutzername und Passwort sind erforderlich.")
         attrs['user'] = user
         return attrs
     
@@ -138,6 +139,9 @@ class SpecificUserProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'file', 'uploaded_at', 'type']
 
     def get_user(self, obj):
+        '''
+        Get the user details.
+        '''
         return {            
             'pk': obj.user.id,
             'username': obj.user.username,
@@ -147,9 +151,15 @@ class SpecificUserProfileSerializer(serializers.ModelSerializer):
         }
     
     def get_file(self, obj):
+        '''
+        Get the file URL.
+        '''
         if obj.file:
             return f"{settings.MEDIA_URL}{obj.file.name}"  
         return None
     
     def get_uploaded_at(self, obj):
+        '''
+        Get the uploaded at date.    
+        '''
         return obj.user.userprofile.created_at

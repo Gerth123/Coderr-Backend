@@ -22,9 +22,15 @@ class UserProfile(models.Model):
         verbose_name_plural = 'User Profiles'
 
     def __str__(self):
+        '''
+        Returns a string representation of the model.
+        '''
         return self.user.username
 
     def save(self, *args, **kwargs):
+        '''
+        Override the save method to set the slug field.
+        '''
         if self.email:
             self.email = self.email.lower()
         

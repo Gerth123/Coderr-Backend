@@ -19,6 +19,9 @@ class Offer(models.Model):
     min_delivery_time = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
+        '''
+        Returns a string representation of the model.
+        '''
         return self.title
 
 
@@ -42,9 +45,15 @@ class OfferDetail(models.Model):
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPES)
 
     def __str__(self):
+        '''
+        Returns a string representation of the model.
+        '''
         return f"{self.title} - {self.offer_type}"
 
     def clean(self):
+        '''
+        Custom validation for the model.
+        '''
         if self.revisions < -1:
             raise ValidationError("Revisions müssen -1 oder größer sein.")
 

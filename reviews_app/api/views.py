@@ -26,6 +26,9 @@ class ReviewListCreateView(generics.ListCreateAPIView):
     pagination_class = None
 
     def get_queryset(self):
+        '''
+        Get the reviews.
+        '''
         queryset = super().get_queryset()
         business_user_id = self.request.query_params.get('business_user_id')
         reviewer_id = self.request.query_params.get('reviewer_id')
@@ -38,10 +41,16 @@ class ReviewListCreateView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
+        '''
+        Create a new review.
+        '''
         serializer.save(reviewer=self.request.user)
 
 class IsReviewerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        '''
+        Check if the user is the reviewer or an admin.
+        '''
         return obj.reviewer == request.user or request.user.is_staff
 
 class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -50,4 +59,7 @@ class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsReviewerOrAdmin]
 
     def perform_update(self, serializer):
+        '''
+        Update the review.
+        '''
         serializer.save()

@@ -15,9 +15,6 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 class CustomLimitOffsetPagination(LimitOffsetPagination):
-    '''
-    Hier kann der User genau bestimmen wie viele Angebote er sehen soll. Und ab welcher bis zu welcher Zahl/ID.
-    '''
     default_limit = 6
     limit_query_param = 'limit'
     offset_query_param = 'offset'
@@ -33,7 +30,7 @@ class OfferFilter(filters.FilterSet):
 
     def filter_by_max_delivery_time(self, queryset, name, value):
         """
-        Filtere Angebote, deren `min_delivery_time` kleiner oder gleich dem angegebenen `max_delivery_time` ist.
+        Filters the queryset based on the max_delivery_time field.
         """
         return queryset.filter(min_delivery_time__lte=value)
 
@@ -49,6 +46,9 @@ class OfferListCreateView(generics.ListCreateAPIView):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        '''
+        Create a new offer.
+        '''
         serializer.save(user=self.request.user.userprofile)
         
 class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
@@ -63,7 +63,6 @@ class OfferDetailView(generics.RetrieveAPIView):
 
     def get_object(self):
         """
-        Diese Methode gibt das OfferDetail-Objekt zurück.
-        Falls das Objekt nicht existiert, wird eine Http404-Antwort erzeugt.
+        Returns the object the view is displaying.
         """
         return super().get_object()

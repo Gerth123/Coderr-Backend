@@ -11,7 +11,6 @@ class Order(models.Model):
     ]
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
@@ -30,4 +29,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        '''
+        Returns a string representation of the model.
+        '''
         return f"{self.title} ({self.offer_type}) - {self.status}"

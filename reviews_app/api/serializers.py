@@ -8,6 +8,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at', 'reviewer']
 
     def validate(self, data):
+        '''
+        Validate that a user can only leave one review per business.
+        '''
         request = self.context['request']
         if request.method == 'POST':
             business_user = data.get('business_user')
@@ -21,6 +24,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        '''
+        Set the reviewer field to the current user.
+        '''
         validated_data['reviewer'] = self.context['request'].user
         return super().create(validated_data)
 
