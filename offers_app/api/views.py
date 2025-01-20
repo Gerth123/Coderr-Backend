@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from .permissions import IsBusinessOwnerOrReadOnly
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 6
@@ -54,12 +55,13 @@ class OfferListCreateView(generics.ListCreateAPIView):
 class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
+    permission_classes = [IsBusinessOwnerOrReadOnly]
     lookup_field = 'pk'
 
 class OfferDetailView(generics.RetrieveAPIView):
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsBusinessOwnerOrReadOnly]
 
     def get_object(self):
         """

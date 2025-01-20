@@ -11,7 +11,7 @@ class Offer(models.Model):
         related_name="offers", 
     )
     title = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="offers/images/", null=True, blank=True)
+    image = models.ImageField(upload_to="offers/images/", null=False, blank=True, default="")
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

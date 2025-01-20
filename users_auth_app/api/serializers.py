@@ -128,7 +128,41 @@ class UsernameAuthTokenSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
-class SpecificUserProfileSerializer(serializers.ModelSerializer):
+class BusinessProfileSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+    location = serializers.ReadOnlyField()
+    tel = serializers.ReadOnlyField()
+    description = serializers.ReadOnlyField()
+    working_hours = serializers.ReadOnlyField()
+    type = serializers.ReadOnlyField()
+
+
+    class Meta:
+        model = User
+        fields = ['user', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
+
+    def get_user(self, obj):
+        '''
+        Get the user details.
+        '''
+        return {            
+            'pk': obj.user.id,
+            'username': obj.user.username,
+            'first_name': obj.user.userprofile.first_name,
+            'last_name': obj.user.userprofile.last_name,
+            'file': self.get_file(obj),
+        }
+    
+    def get_file(self, obj):
+        '''
+        Get the file URL.
+        '''
+        if obj.file:
+            return f"{settings.MEDIA_URL}{obj.file.name}"  
+        return None
+    
+class CustomerProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     file = serializers.SerializerMethodField()
     uploaded_at = serializers.SerializerMethodField()

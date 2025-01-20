@@ -3,12 +3,41 @@ from offers_app.models import Offer, OfferDetail
 from django.db.models import Min
 from django.conf import settings
 from .functions import *
+from users_auth_app.models import UserProfile
+from rest_framework.exceptions import PermissionDenied
+from decimal import Decimal
 
 class OfferDetailSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = OfferDetail
-        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type', 'url']
 
+    def get_url(self, obj):
+        '''
+        Get the URL of the offer detail.
+        '''
+        return f"/offerdetails/{obj.id}/"
+    
+    def get_price(self, obj):
+        '''
+        Get the price of the offer detail.
+        '''
+        return Decimal(obj.price)
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user profile.
+    """
+    first_name = serializers.CharField(source='user.userprofile.first_name')
+    last_name = serializers.CharField(source='user.userprofile.last_name')
+    username = serializers.CharField(source='user.username')
+
+    class Meta:
+        model = UserProfile
+        fields = ['first_name', 'last_name', 'username']
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -16,15 +45,16 @@ class OfferSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.user.id')
     min_price = serializers.ReadOnlyField()
     min_delivery_time = serializers.ReadOnlyField()
-    image = serializers.ImageField(required=False, allow_null=True)
+    image = serializers.SerializerMethodField()
+    user_details = UserProfileSerializer(source='user', read_only=True)
 
     def get_image(self, obj):
         '''
         Get the image URL.
         '''
-        if obj.image:
+        if obj.image and obj.image != "":
             return f"{settings.MEDIA_URL}{obj.image.name}"  
-        return None 
+        return ""
 
     class Meta:
         model = Offer
@@ -33,14 +63,24 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        '''
+        """
         Create and return a new offer.
-        '''
-        validated_data.pop('user', None)
-        details_data = validated_data.pop('details', [])
-        user = self.context['request'].user.userprofile
+        """
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            raise PermissionDenied(detail="Authentication required to create an offer.")
 
-        offer = Offer.objects.create(user=user, **validated_data)
+        if not hasattr(user, 'userprofile') or user.userprofile.type != 'business':
+            raise PermissionDenied(detail="Only business users are allowed to create offers.")
+
+        validated_data.pop('user', None)
+        image = validated_data.pop('image', None)
+        if image is None:
+            validated_data['image'] = ""
+        details_data = validated_data.pop('details', [])
+        user_profile = user.userprofile
+
+        offer = Offer.objects.create(user=user_profile, **validated_data)
         for detail_data in details_data:
             OfferDetail.objects.create(offer=offer, **detail_data)
 
@@ -56,6 +96,10 @@ class OfferSerializer(serializers.ModelSerializer):
         Update and return an existing offer.
         '''
         details_data = validated_data.pop('details', None)
+
+        image = validated_data.pop('image', None)
+        if image is None:
+            validated_data['image'] = ""
         
         update_offer(instance, validated_data)
 

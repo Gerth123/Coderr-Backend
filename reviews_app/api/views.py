@@ -4,6 +4,7 @@ from .serializers import ReviewSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter, OrderingFilter
+from .permissions import IsReviewerOrAdmin
 
 class ReviewFilter(filters.FilterSet):
     rating = filters.NumberFilter(field_name="rating", lookup_expr="gte")
@@ -45,13 +46,6 @@ class ReviewListCreateView(generics.ListCreateAPIView):
         Create a new review.
         '''
         serializer.save(reviewer=self.request.user)
-
-class IsReviewerOrAdmin(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        '''
-        Check if the user is the reviewer or an admin.
-        '''
-        return obj.reviewer == request.user or request.user.is_staff
 
 class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
