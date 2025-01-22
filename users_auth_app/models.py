@@ -7,6 +7,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     first_name = models.CharField(max_length=100, blank=True,  default='', null=True)
     last_name = models.CharField(max_length=100, blank=True,  default='', null=True)
+    username = models.CharField(max_length=100, blank=True,  default='', null=True)
     file = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     location = models.CharField(max_length=255,  default='', blank=True, null=True)
     tel = models.CharField(max_length=20,  default='', blank=True, null=True)

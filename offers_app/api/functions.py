@@ -1,5 +1,7 @@
 from offers_app.models import OfferDetail
 from django.db.models import Min
+from decimal import Decimal
+from rest_framework import serializers
 
 def update_offer(instance, validated_data):
     """

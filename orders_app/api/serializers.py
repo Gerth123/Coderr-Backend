@@ -36,10 +36,12 @@ class OrderSerializer(serializers.ModelSerializer):
         Create and return a new order.
         '''
         offer_detail = validated_data.get('offer_detail')
+        if not offer_detail:
+            raise serializers.ValidationError({"offer_detail": "Dieses Feld wird benötigt."})   
         business_user = offer_detail.offer.user
         customer_user = getattr(self.context['request'].user, 'userprofile', None)
         if not customer_user:
-            raise ValueError("Der Benutzer hat kein UserProfile.")
+            raise serializers.ValidationError({"customer_user": "Der Benutzer hat kein UserProfile."})
 
         order = create_order(offer_detail, customer_user)
 

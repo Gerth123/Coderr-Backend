@@ -9,7 +9,7 @@ from decimal import Decimal
 
 class OfferDetailSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = OfferDetail
@@ -20,13 +20,7 @@ class OfferDetailSerializer(serializers.ModelSerializer):
         Get the URL of the offer detail.
         '''
         return f"/offerdetails/{obj.id}/"
-    
-    def get_price(self, obj):
-        '''
-        Get the price of the offer detail.
-        '''
-        return Decimal(obj.price)
-    
+        
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile.
@@ -60,8 +54,6 @@ class OfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = '__all__'
 
-
-
     def create(self, validated_data):
         """
         Create and return a new offer.
@@ -83,7 +75,7 @@ class OfferSerializer(serializers.ModelSerializer):
         offer = Offer.objects.create(user=user_profile, **validated_data)
         for detail_data in details_data:
             OfferDetail.objects.create(offer=offer, **detail_data)
-
+        print(offer)
         offer.min_price = offer.details.aggregate(Min('price'))['price__min']
         offer.min_delivery_time = offer.details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min']
         offer.save()
