@@ -46,16 +46,8 @@ class OfferSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.user.id')
     min_price = serializers.ReadOnlyField()
     min_delivery_time = serializers.ReadOnlyField()
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
     user_details = UserProfileSerializer(source='user', read_only=True)
-
-    def get_image(self, obj):
-        '''
-        Get the image URL.
-        '''
-        if obj.image and obj.image != "":
-            return f"{settings.MEDIA_URL}{obj.image.name}"  
-        return ""
 
     class Meta:
         model = Offer
@@ -66,25 +58,15 @@ class OfferSerializer(serializers.ModelSerializer):
         Create and return a new offer.
         """
         user = self.context['request'].user
-        if not user.is_authenticated:
-            raise PermissionDenied(detail="Authentication required to create an offer.")
 
-        if not hasattr(user, 'userprofile') or user.userprofile.type != 'business':
-            raise PermissionDenied(detail="Only business users are allowed to create offers.")
-
+        check_user_permissions(user)
         validated_data.pop('user', None)
-        image = validated_data.pop('image', None)
-        if image is None:
-            validated_data['image'] = ""
+        validated_data = process_image(validated_data)
+        
         details_data = validated_data.pop('details', [])
         user_profile = user.userprofile
 
-        offer = Offer.objects.create(user=user_profile, **validated_data)
-        for detail_data in details_data:
-            OfferDetail.objects.create(offer=offer, **detail_data)
-        offer.min_price = offer.details.aggregate(Min('price'))['price__min']
-        offer.min_delivery_time = offer.details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min']
-        offer.save()
+        offer = create_offer_and_details(user_profile, validated_data, details_data)
 
         return offer
 
@@ -94,9 +76,6 @@ class OfferSerializer(serializers.ModelSerializer):
         Update and return an existing offer.
         '''
         details_data = validated_data.pop('details', None)
-        image = validated_data.pop('image', None)
-        if image is None:
-            validated_data['image'] = ""
         
         update_offer(instance, validated_data)
 
