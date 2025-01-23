@@ -7,9 +7,15 @@ from users_auth_app.models import UserProfile
 from rest_framework.exceptions import PermissionDenied
 from decimal import Decimal
 
+class CustomFloatField(serializers.FloatField):
+    def to_representation(self, value):
+        return float(f"{value:.2f}")
+
 class OfferDetailSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    price = CustomFloatField()
+    # price = serializers.SerializerMethodField()
+    # price = MoneyField(max_digits=15, decimal_places=2, default_currency='EUR')
 
     class Meta:
         model = OfferDetail
@@ -21,6 +27,7 @@ class OfferDetailSerializer(serializers.ModelSerializer):
         '''
         return f"/offerdetails/{obj.id}/"
         
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile.
@@ -75,7 +82,6 @@ class OfferSerializer(serializers.ModelSerializer):
         offer = Offer.objects.create(user=user_profile, **validated_data)
         for detail_data in details_data:
             OfferDetail.objects.create(offer=offer, **detail_data)
-        print(offer)
         offer.min_price = offer.details.aggregate(Min('price'))['price__min']
         offer.min_delivery_time = offer.details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min']
         offer.save()
@@ -88,7 +94,6 @@ class OfferSerializer(serializers.ModelSerializer):
         Update and return an existing offer.
         '''
         details_data = validated_data.pop('details', None)
-
         image = validated_data.pop('image', None)
         if image is None:
             validated_data['image'] = ""

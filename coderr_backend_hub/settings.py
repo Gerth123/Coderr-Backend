@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'django_filters',
     'base_info_app',
     'rest_framework.authtoken',
-    'corsheaders',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -152,10 +152,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
-    ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'utils.renderers.CustomJSONRenderer', 
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ],
+    ]
 }
 
